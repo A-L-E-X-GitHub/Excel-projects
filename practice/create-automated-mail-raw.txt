@@ -1,8 +1,7 @@
-Option Explicit
-
 ' Declare module variables --
 Dim mailArray() As Variant
 
+'-------------------------------------------------------------------------------
 
 Private Sub POPULATE_MAIL_ARRAY()
 
@@ -40,7 +39,7 @@ Private Sub POPULATE_MAIL_ARRAY()
     
 End Sub
 
-
+'-------------------------------------------------------------------------------
 
 Sub SEND_AUTOMATED_MAIL()
 
