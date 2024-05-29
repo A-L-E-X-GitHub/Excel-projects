@@ -1,5 +1,3 @@
-Option Explicit
-
 Sub ExportDiagram()
 
     ' Declare variables --
