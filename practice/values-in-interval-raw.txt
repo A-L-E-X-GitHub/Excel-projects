@@ -27,7 +27,6 @@ Sub StudentHeightStatistics()
         End If
     Next cell
     
-    
     ' Reset the array incase there are remenants from the previous calculation --
     For i = 0 To UBound(intervalArray)
         intervalArray(i) = 0
