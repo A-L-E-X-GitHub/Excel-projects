@@ -1,0 +1,37 @@
+Option Explicit
+
+Sub ExportDiagram()
+
+    ' Declare variables --
+    Dim ppApplication As PowerPoint.Application
+    Dim ppPresentation As PowerPoint.Presentation
+    Dim ppSlide As PowerPoint.Slide
+    Dim chartObject As chartObject
+    
+    ' Select and copy the diagram --
+    Set chartObject = ActiveSheet.ChartObjects("Diagram 1")
+    chartObject.Activate
+    chartObject.Chart.ChartArea.Copy
+    
+    ' Run PowerPoint --
+    Set ppApplication = CreateObject("PowerPoint.Application")
+    ppApplication.Visible = True
+
+    ' Create a new presentation file --
+    Set ppPresentation = ppApplication.Presentations.Add
+    
+    ' Set the view type --
+    ppApplication.ActiveWindow.ViewType = ppViewSlide
+    
+    ' Create a new slide --
+    Set ppSlide = ppPresentation.Slides.Add(1, ppLayoutTitleOnly)
+    
+    ' Send key commands to windows --
+    SendKeys "^v", True
+    
+    ' Dispose of object variables to free up access memory --
+    Set ppSlide = Nothing
+    Set ppPresentation = Nothing
+    Set ppApplication = Nothing
+    
+End Sub

@@ -1,0 +1,78 @@
+Option Explicit
+
+' Declare module variables --
+Dim mailArray() As Variant
+
+
+Private Sub POPULATE_MAIL_ARRAY()
+
+    ' Declare variables --
+    Dim cell, count, i
+    
+    count = 0
+    i = 0
+    
+    ' Count the amount of marked adresses to send mail to --
+    For Each cell In Range("H:H")
+        If cell.Value <> "" Then
+            If cell.Offset(0, 1).Value = "x" Then
+                count = count + 1
+            End If
+        Else
+            Exit For
+        End If
+    Next cell
+    
+    ' ReDim the array to the found count value --
+    ReDim mailArray(count)
+    
+    ' Go through the range again and populate the array --
+    For Each cell In Range("H:H")
+        If cell.Value <> "" Then
+            If cell.Offset(0, 1) = "x" Then
+                mailArray(i) = cell.Value
+                i = i + 1
+            End If
+        Else
+            Exit For
+        End If
+    Next cell
+    
+End Sub
+
+
+
+Sub SEND_AUTOMATED_MAIL()
+
+    ' Declare variables --
+    Dim appOutlook As Outlook.Application
+    Dim mailOutlook As Outlook.MailItem
+    Dim i As Long
+    
+    ' Populate the array
+    Call POPULATE_MAIL_ARRAY
+    
+    ' Start Outlook --
+    Set appOutlook = CreateObject("Outlook.Application")
+    
+    ' Create a new mail --
+    Set mailOutlook = appOutlook.CreateItem(olMailItem)
+
+    mailOutlook.To = mailArray(0)
+    
+    ' Build the mail --
+    For i = 1 To UBound(mailArray)
+        mailOutlook.To = mailOutlook.To & "; " & mailArray(i)
+    Next i
+    mailOutlook.CC = "dummy@domain.net"
+    mailOutlook.Subject = "A interesting subject text"
+    mailOutlook.Body = "Hello!" & vbCrLf & _
+                       "Join me for the BBQ on the 21st this month!" & vbCrLf & _
+                       "Greetings, Ben"
+    mailOutlook.Display
+    
+    ' Dispose of objects --
+    Set mailOutlook = Nothing
+    Set appOutlook = Nothing
+    
+End Sub
