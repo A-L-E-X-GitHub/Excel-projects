@@ -1,0 +1,100 @@
+Option Explicit
+
+Sub StudentHeightStatistics()
+
+    ' Declare variables --
+    Dim intervalArray(11) As Variant
+    Dim studentCount As Integer
+    Dim maxHeight As Integer
+    Dim minHeight As Integer
+    Dim count As Integer
+    Dim cell As Range
+    Dim i As Integer
+    
+    ' Initalize the student count --
+    studentCount = 0
+    count = 0
+    
+    ' Get the array size for intervalArray --
+    For Each cell In Range("G:G")
+        If cell.Value <> "" Then
+            count = count + 1
+        Else
+        
+            ' Offset the value by one to exclude the header --
+            count = count - 1
+            Exit For
+        End If
+    Next cell
+    
+    
+    ' Reset the array incase there are remenants from the previous calculation --
+    For i = 0 To UBound(intervalArray)
+        intervalArray(i) = 0
+    Next i
+    
+    ' Iterate through the B column
+    For Each cell In Range("B:B")
+    
+        ' Reset the index count for the next iteration --
+        i = 0
+        
+        ' Ensure that the cell is not blank and that the value is numeric --
+        If cell.Value <> "" Then
+            If IsNumeric(cell.Value) Then
+            
+                studentCount = studentCount + 1
+                
+                ' Initiate a value to minHeight so that it is not set to 0 --
+                If studentCount = 1 Then
+                    minHeight = cell.Value
+                End If
+            
+                ' Calculate the minimum and maximum heights --
+                If cell.Value > maxHeight Then
+                    maxHeight = cell.Value
+                ElseIf cell.Value < minHeight Then
+                    minHeight = cell.Value
+                End If
+                
+                ' Iterate through and compare the cell value to 155 to 210 with a step
+                ' of five each time.
+                For count = 155 To 210 Step 5
+                
+                    ' If the value is between the min and max current step
+                    If cell.Value >= count And cell.Value < count + 5 Then
+                    
+                        ' Increment the amount of matched results --
+                        intervalArray(i) = intervalArray(i) + 1
+                    
+                    End If
+                    
+                    ' Increment the index counter --
+                    i = i + 1
+                    
+                Next count
+            End If
+        Else
+            Exit For
+        End If
+    Next cell
+	
+    ' Set the active selection the the cell I2
+    Range("I2").Select
+    
+    ' Iterate through the array print out the results, any empty results should return 0 --
+    For i = 0 To 10
+        If intervalArray(i) = 0 Then
+            ActiveCell.Offset(i, 0).Value = 0
+        Else
+            ActiveCell.Offset(i, 0).Value = intervalArray(i)
+        End If
+    Next i
+    
+    ' Print out the min, max and count statistics --
+    Range("E1").Value = minHeight
+    Range("E2").Value = maxHeight
+    Range("E3").Value = i
+    
+
+End Sub
