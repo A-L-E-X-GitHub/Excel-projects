@@ -65,7 +65,7 @@ Sub SEND_AUTOMATED_MAIL()
         mailOutlook.To = mailOutlook.To & "; " & mailArray(i)
     Next i
     mailOutlook.CC = "dummy@domain.net"
-    mailOutlook.Subject = "A interesting subject text"
+    mailOutlook.Subject = "An interesting subject text"
     mailOutlook.Body = "Hello!" & vbCrLf & _
                        "Join me for the BBQ on the 21st this month!" & vbCrLf & _
                        "Greetings, Ben"
