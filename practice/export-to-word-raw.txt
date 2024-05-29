@@ -1,0 +1,32 @@
+Sub ExportToWord()
+
+    ' Declare variables --
+    Dim appWord As Word.Application
+    
+    ' Select the area to be copied --
+    range("A1").Select
+    range(Selection, Selection.End(xlToRight)).Select
+    range(Selection, Selection.End(xlDown)).Select
+    
+    ' Copy the selected range --
+    Selection.Copy
+    
+    ' Start Word --
+    Set appWord = New Word.Application
+    
+    ' Set word to be visible and bring it to focus --
+    With appWord
+        .Visible = True
+        .Activate
+    End With
+    
+    ' Create a new Word document --
+    appWord.Documents.Add
+    
+    ' Paste the copied Excel data --
+    appWord.Selection.Paste
+    
+    ' Dispose of the object to free up the access memory --
+    Set appWord = Nothing
+    
+End Sub
