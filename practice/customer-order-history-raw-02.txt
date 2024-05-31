@@ -1,0 +1,98 @@
+Option Explicit
+
+' Declare and/or initialize variables --
+Dim landArray(200, 2)
+Dim index As Integer
+
+
+Sub GetTotalSummery()
+
+    Call Entry
+    Call Calculate
+    Call Output
+
+
+End Sub
+
+
+Private Sub Entry()
+
+    ' Declare and/or initialize variables --
+    Dim cell
+    
+    ' Initalize variables --
+    index = 0
+    
+    ' Clean up previous results --
+    For index = 0 To UBound(landArray) - 1
+        landArray(index, 0) = ""
+        landArray(index, 1) = ""
+    Next index
+    
+    ' Reset index --
+    index = 0
+    
+    ' Populate the array 'landArray'
+    For Each cell In Range("H2:H202")
+    
+        ' Ensures that there is data, will stop once an empty cell is found --
+        If cell.Value <> "" Then
+            landArray(index, 0) = cell.Value    ' Country
+            landArray(index, 1) = 0             ' Order value
+            
+            ' Increment the index for each entry matched --
+            index = index + 1
+        Else
+            Exit For
+        End If
+    Next cell
+
+End Sub
+
+
+Private Sub Calculate()
+
+    ' Declare and/or initialize variables --
+    Dim cell As Range
+    Dim i As Integer
+    
+    ' Iterate through the D column --
+    For Each cell In Range("D:D")
+        
+        ' Ensures that there is data, will stop once an empty cell is found --
+        If cell.Value <> "" Then
+            
+            ' Iterates through the index value, meaning it will only iterate through the amount
+            ' of countries successfully found when populating the array and not the entire array --
+            For i = 0 To index
+            
+                ' Check if the current cell value matches the country in the array
+                ' and fetches the current total sum of the country, then adds the value at
+                ' the current index from the array --
+                If cell.Value = landArray(i, 0) Then
+                    landArray(i, 1) = landArray(i, 1) + cell.Offset(0, 1).Value
+                    Exit For
+                End If
+            Next i
+        Else
+            Exit For
+        End If
+    Next cell
+
+End Sub
+
+
+Private Sub Output()
+
+    ' Declare and/or initialize variables --
+    Dim rows
+    
+    ' Select the starting cell --
+    Range("I2").Select
+    
+    ' Iterate through the landarray length (aka index) and return the values of the order values --
+    For rows = 0 To index
+        ActiveCell.Offset(rows, 0) = landArray(rows, 1)
+    Next rows
+
+End Sub

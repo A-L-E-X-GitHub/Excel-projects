@@ -1,0 +1,101 @@
+Option Explicit
+
+
+Sub SummerizeByFilter()
+    
+    ' Declare variables --
+    Dim countryFilter As String
+    Dim cell As Range
+    Dim orderArray()
+    Dim i As Long
+    Dim countrySum As Double
+    
+    ' Initialize variables -
+    i = 0
+    countrySum = 0
+    
+    ' Get the country to filter by --
+    countryFilter = Sheets("Kundlista").cmbLand.Value
+    
+'------------------------------------------------------------------------------------------
+
+    ' Pause the screen updating to save of draw calls while processing data --
+    Application.ScreenUpdating = False
+    
+    ' Iterate through the country column and find matched results to determine
+    ' how big the orderArray should be --
+    For Each cell In Sheets("Kundlista").Range("D:D")
+        If cell.Value <> "" Then
+            If cell.Value = countryFilter Then
+                i = i + 1
+            End If
+        Else
+            Exit For
+        End If
+    Next cell
+    
+    ' Resize the orderArray to match the data found --
+    ReDim orderArray(i, 3)
+    
+    ' Reset the (i)ndex variable --
+    i = 0
+    
+    ' Iterate through the country column and match the data once
+    ' more to populate the orderArray --
+    For Each cell In Sheets("Kundlista").Range("D:D")
+        If cell.Value <> "" Then
+            If cell.Value = countryFilter Then
+            
+                ' Fetch the specified data and store it in the array --
+                orderArray(i, 0) = cell.Offset(0, -3).Value     ' Country
+                orderArray(i, 1) = cell.Offset(0, -2).Value     ' City
+                orderArray(i, 2) = cell.Offset(0, 1).Value      ' Order value
+                
+                ' Increment the (i)ndex value to move down a row --
+                i = i + 1
+                
+            End If
+        Else
+            Exit For
+        End If
+    Next cell
+    
+'------------------------------------------------------------------------------------------
+    
+    ' Remove any data from previous results --
+    Sheets("Utdata").Columns("A:C").ClearContents
+    
+    ' Reuse (i)ndex again & iterate through each element in the array --
+    For i = 0 To UBound(orderArray) - 1
+    
+        ' Write the data to the Excel sheet --
+        Sheets("Utdata").Range("A5").Offset(i, 0) = orderArray(i, 0)
+        Sheets("Utdata").Range("A5").Offset(i, 1) = orderArray(i, 1)
+        Sheets("Utdata").Range("A5").Offset(i, 2) = orderArray(i, 2)
+        
+        ' Increment the country sum by the order value from each element in the array --
+        countrySum = countrySum + orderArray(i, 2)
+    
+    Next i
+    
+    ' Re-insert the table headers --
+    Sheets("Utdata").Range("A4") = "Company"
+    Sheets("Utdata").Range("B4") = "City"
+    Sheets("Utdata").Range("C4") = "Order Value"
+    
+    ' Write the country specifics --
+    Sheets("Utdata").Range("A1") = "Summery for " & countryFilter
+    Sheets("Utdata").Range("B1") = countrySum
+    Sheets("Utdata").Range("A2") = "Order quantity "
+    Sheets("Utdata").Range("B2") = i
+    
+    ' Auto size the width to better display the data --
+    Sheets("Utdata").Columns("A:C").AutoFit
+    
+    ' Select the "Utdata" sheet --
+    Sheets("Utdata").Activate
+    
+    ' Resume the screen updates once the data has been processed --
+    Application.ScreenUpdating = True
+    
+End Sub
