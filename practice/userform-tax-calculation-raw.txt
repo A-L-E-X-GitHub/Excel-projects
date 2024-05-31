@@ -1,0 +1,104 @@
+Option Explicit
+
+
+Private Sub buttonOk_Click()
+    
+    ' Call the function on button click --
+    CalculateTaxes
+    
+End Sub
+
+
+Private Sub buttonCancel_Click()
+
+    ' Print a cancellation message --
+    MsgBox "No data was registered.", vbInformation, "Calculate Taxes"
+
+    ' Unload the form --
+    Unload Me
+    
+End Sub
+
+
+Private Sub CalculateTaxes()
+
+    ' Declare variables --
+    Dim income As Double
+    Dim taxMunicipal As Double
+    Dim taxState As Double
+    Dim taxAusterity As Double
+    Dim selectedState As String
+    Dim selectedTax As Double
+    Dim cell As Range
+    
+    ' Initalize variables to 0, not necessary in this case but saves
+    ' two else statements later and provides cleaner looking code --
+    taxState = 0
+    taxAusterity = 0
+    
+    ' Declare constants --
+    Const BREAKPOINT_HIGH = 58600
+    Const BREAKPOINT_LOW = 42000
+
+'--------------------------------------------------------------------------------------
+
+    ' Handle potential listbox selection errors --
+    If Me.listBoxStates.ListIndex = -1 Then
+        MsgBox "Please select a state before proceeding", vbExclamation, "Error"
+        Exit Sub
+    End If
+    
+    ' Handle potential income input errors --
+    If Me.textBoxIncome.Value = "" Or Not IsNumeric(Me.textBoxIncome.Value) Then
+        MsgBox "Please provide a numeric income amount before proceeding", vbExclamation, "Error"
+        Exit Sub
+    End If
+    
+    ' Fetch the values of the selected state and income --
+    selectedState = Me.listBoxStates.Value
+    income = Me.textBoxIncome.Value
+    
+    ' Iterate through the A column until a blank cell is found --
+    For Each cell In Sheets("Kommunalskatter").Range("A:A")
+        If cell.Value <> "" Then
+        
+            ' if the cell value matches the selected state, fetch the
+            ' municipal tax value and stop the loop --
+            If cell.Value = selectedState Then
+                selectedTax = cell.Offset(0, 1).Value
+                Exit For
+            End If
+        Else
+            Exit For
+        End If
+    Next cell
+    
+    ' Calculate the base tax --
+    taxMunicipal = income * selectedTax
+
+    ' Check if the austerity tax should be paid --
+    If income > BREAKPOINT_HIGH Then
+        taxAusterity = (income - BREAKPOINT_HIGH) * 0.05
+    End If
+    
+    ' Check if the state tax should be paid --
+    If income > BREAKPOINT_LOW Then
+        taxState = (income - BREAKPOINT_LOW) * 0.2
+    End If
+    
+'--------------------------------------------------------------------------------------
+    
+    ' Print out the calculated data --
+    Sheets("Utdata").Range("B1").Value = selectedState
+    Sheets("Utdata").Range("B2").Value = income
+    Sheets("Utdata").Range("B3").Value = taxMunicipal
+    Sheets("Utdata").Range("B4").Value = taxState
+    Sheets("Utdata").Range("B5").Value = taxAusterity
+    Sheets("Utdata").Range("B6").Value = taxMunicipal + taxState + taxAusterity
+    Sheets("Utdata").Range("B7").Value = income - (taxMunicipal + taxState + taxAusterity)
+    Sheets("Utdata").Range("B8").Value = (taxMunicipal + taxState + taxAusterity) / income
+    
+    ' Unload/close the form --
+    Unload Me
+
+End Sub
